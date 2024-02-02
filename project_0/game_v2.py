@@ -2,6 +2,7 @@
 Компьютер сам загадывает и угадывает число
 """
 import numpy as np
+
 def random_predict(number:int=1) -> int:
     """Рандомно угадываем число
 
@@ -20,6 +21,8 @@ def random_predict(number:int=1) -> int:
         if number == predict_number:
             break # выход из цикла, если угадали
     return(count)
+
+
 
 def score_game(random_predict) -> int:
     """За какое количество попыток в среднем из 1000 подходов угадывает наш алгоритм
@@ -45,4 +48,4 @@ def score_game(random_predict) -> int:
 
 # RUN
 if __name__ == '__main__':
-    score_game(random_predict)
+
