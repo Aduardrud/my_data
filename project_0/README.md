@@ -37,4 +37,18 @@
 *******
 :arrow_up: [К оглавлению](https://github.com/Aduardrud/my_data/blob/main/project_0/README.md#Оглавление)
 
+### Этапы работы над проектом
+*******
+
+:arrow_up: [К оглавлению](https://github.com/Aduardrud/my_data/blob/main/project_0/README.md#Оглавление)
+
+### Результат
+*******
+
+:arrow_up: [К оглавлению](https://github.com/Aduardrud/my_data/blob/main/project_0/README.md#Оглавление)
+
+### Выводы
+
+:arrow_up: [К оглавлению](https://github.com/Aduardrud/my_data/blob/main/project_0/README.md#Оглавление)
+
            
