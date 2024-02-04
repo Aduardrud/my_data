@@ -15,7 +15,7 @@ def game_core_v2(number: int = 1) -> int:
     Returns:
         int: Число попыток
     """
-    count = 0
+    count = 1
     predict = np.random.randint(1, 101)
     
     while number != predict:
