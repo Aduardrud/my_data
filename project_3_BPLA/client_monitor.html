@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления дроном</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f8ff; /* Цвет фона */
+            color: #333; /* Цвет текста */
+            display: flex; /* Используем flexbox для размещения контента */
+            justify-content: flex-start; /* Выровнять контент по левому краю */
+        }
+
+        .container {
+            max-width: 800px; /* Максимальная ширина контейнера */
+            width: 100%; /* Занимает 100% от родителя, но не более 800px */
+        }
+
+        h1, h2, h3, h4 {
+            color: #2c3e50; /* Цвет заголовков */
+        }
+
+        input, button {
+            margin: 3px;
+            padding: 5px; /* Отступы внутри элементов */
+            border-radius: 5px; /* Скругление углов */
+            border: 1px solid #ccc; /* Цвет границы */
+            width: calc(20% - 22px); /* Выравнивание ширины полей до 100% за вычетом отступов */
+        }
+
+        button {
+            background-color: #3498db; /* Цвет кнопки */
+            color: white; /* Цвет текста кнопки */
+            cursor: pointer; /* Указатель для курсора */
+            transition: background-color 0.3s; /* Плавный переход цвета фона */
+        }
+
+        button:hover {
+            background-color: #2980b9; /* Цвет кнопки при наведении */
+        }
+
+        pre {
+            background: #e8f8f5; /* Цвет фона для предформатированного текста */
+            padding: 10px;
+            border-radius: 5px; /* Скругление углов */
+        }
+
+        #terminal {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px; /* Фиксированная высота */
+            overflow-y: auto; /* Прокрутка по вертикали */
+            background: #ffffff; /* Цвет фона терминала */
+            width: 100%; /* Увеличена ширина терминала до 100% */
+        }
+
+        .auth-container {
+            display: flex; /* Используем flexbox для выравнивания элементов в строку */
+            align-items: center; /* Выравниваем элементы по центру */
+        }
+
+        .mission-container {
+            display: none; /* Скрыто по умолчанию */
+            margin-top: 10px; /* Отступ сверху */
+        }
+
+        .radio-group {
+            margin: 5px 0; /* Отступ для группы радиокнопок */
+
+        }
+        .system-monitor {
+            position: absolute; /* Абсолютное позиционирование */
+            top: 10px; /* Отступ от верхнего края */
+            left: 550px; /* Отступ от правого края */
+            width: 200px; /* Задайте нужную ширину для окна мониторинга */
+            height: 150px; /* Задайте нужную высоту для окна мониторинга */
+            padding: 10px;
+            border: 10px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень для лучшего восприятия */
+            font-size: 11px; /* Задаем размер шрифта в пикселях */
+        }
+
+        #monitor-btn {
+            width: calc(100% - 20px); /* Задаем ширину кнопки на 20 пикселей меньше контейнера */
+            margin-top: -5px; /* Добавляем отступ сверху для кнопки */
+            padding: 10px; /* Добавляем внутренние отступы */
+            border: none; /* Убираем рамку */
+            border-radius: 5px; /* Скругляем углы */
+            background-color: #007bff; /* Цвет фона кнопки */
+            color: white; /* Цвет текста */
+            cursor: pointer; /* Указываем, что кнопка кликабельная */
+            transition: background-color 0.3s; /* Плавный переход для фона */
+        }
+
+        #monitor-btn:hover {
+            background-color: #0056b3; /* Темнее цвет фона при наведении */
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>API Client</h1>
+
+        <div>
+            <label for="baseUrl">Базовый URL API:</label>
+            <input type="text" id="baseUrl" value="http://localhost:5000" />
+            <button onclick="setBaseUrl()">Установить</button>
+        </div>
+
+        <div>
+            <h2>Авторизация / Регистрация</h2>
+            <div class="auth-container">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" placeholder="Введите имя пользователя" />
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" placeholder="Введите пароль" />
+                <button onclick="login()">Вход</button>
+                <button onclick="register()">Регистрация</button>
+            </div>
+        </div>
+
+        <div>
+            <h2>Выбор миссии</h2>
+            <div class="radio-group">
+                <input type="radio" id="survey" name="mission" value="survey" onclick="toggleMissionInputs()" checked>
+                <label for="survey">Облёт квадрата</label>
+                <input type="radio" id="orbit" name="mission" value="orbit" onclick="toggleMissionInputs()">
+                <label for="orbit">Облёт круга</label>
+            </div>
+
+            <div id="missionInputs" class="mission-container">
+                <h3>Параметры миссии:</h3>
+                <div id="surveyInputs" style="display:none;">
+                    <label for="boxsize">Размер стороны квадрата:</label>
+                    <input type="number" id="boxsize" name="boxsize" value="100" step="1" required><br>
+
+                    <label for="stripewidth">Ширина полосы:</label>
+                    <input type="number" id="stripewidth" name="stripewidth" value="20" step="1" required><br>
+                    <label for="altitude_survey">Высота:</label>
+                    <input type="number" id="altitude_survey" name="altitude" value="30" step="1" required><br>
+
+                    <label for="velocity_survey">Скорость:</label>
+                    <input type="number" id="velocity_survey" name="velocity" value="20" step="1" required><br>
+                </div>
+                <div id="orbitInputs" style="display:none;">
+                    <label for="radius">Радиус круга:</label>
+                    <input type="number" id="radius" name="radius" value="100" step="1" required><br>
+
+                    <label for="altitude_orbit">Высота:</label>
+                    <input type="number" id="altitude_orbit" name="altitude" value="30" step="1" required><br>
+
+                    <label for="velocity_orbit">Скорость:</label>
+                    <input type="number" id="velocity_orbit" name="velocity" value="20" step="1" required><br>
+
+                    <label for="iterations">Количество кругов:</label>
+                    <input type="number" id="iterations" name="iterations" value="1" step="1" required><br>
+
+                    <label for="center">Центр круга:</label>
+                    <input type="text" id="center" name="center" value="[1, 0]" required><br>
+
+                    <label for="snapshots">Количество фотоснимков:</label>
+                    <input type="number" id="snapshots" name="snapshots" value="5" step="1" required><br>
+                </div>
+            </div>
+
+            <div>
+                <button onclick="startMission()">Старт миссии</button>
+                <button onclick="stopMission()">Посадка</button>
+                <button onclick="getUsers()">Пользователи</button>
+            </div>
+        </div>
+
+        <h4>Сообщения с сервера:</h4>
+        <div id="terminal">
+            <p>Лог дрона: </p>
+        </div>
+
+        <div class="system-monitor">
+            <h4>Состояние системы:</h4>
+            <p>CPU: <span id="cpu-usage">0%</span></p>
+            <p>Память: <span id="memory-usage">0%</span></p>
+            <p>Диск: <span id="disk-usage">0%</span></p>
+            <button id="monitor-btn" onclick="toggleSystemMonitor()">Вкл/Выкл мониторинг</button>
+        </div>
+    </div>
+
+    <script>
+        let baseUrl = '';
+        let token = '';
+        let isMonitorEnabled = true; // Переменная для отслеживания состояния мониторинга.
+        let monitorIntervalId; // Добавим переменную для хранения идентификатора интервала
+
+        function logToTerminal(message) {
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML += message + '<br>'; // Добавляем новое сообщение
+            terminal.scrollTop = terminal.scrollHeight; // Прокручиваем к низу
+        }
+
+        function setBaseUrl() {
+            baseUrl = document.getElementById('baseUrl').value;
+            logToTerminal('Базовый URL установлен: ' + baseUrl);
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const data = { username, password };
+
+            try {
+                const response = await fetch(`${baseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const jsonResponse = await response.json();
+                if (response.ok) {
+                    token = jsonResponse.access_token;
+                    logToTerminal('Успешная авторизация: ' + JSON.stringify(jsonResponse, null, 2));
+                } else {
+                    logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                }
+            } catch (error) {
+                logToTerminal('Ошибка при авторизации: ' + error. Message);
+            } finally {
+                document.getElementById('username').value = ''; // Очищаем поле имени пользователя
+                document.getElementById('password').value = ''; // Очищаем поле пароля
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const data = { username, password };
+
+            try {
+                const response = await fetch(`${baseUrl}/api/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const jsonResponse = await response.json();
+                if (response.ok) {
+                    logToTerminal('Пользователь зарегистрирован: ' + JSON.stringify(jsonResponse, null, 2));
+                } else {
+                    logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                }
+            } catch (error) {
+                logToTerminal('Ошибка при регистрации: ' + error. Message);
+            } finally {
+                document.getElementById('username').value = ''; // Очищаем поле имени пользователя
+                document.getElementById('password').value = ''; // Очищаем поле пароля
+            }
+        }
+
+        async function getUsers() {
+            try {
+                const response = await fetch(`${baseUrl}/api/users`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const jsonResponse = await response.json();
+                if (response.ok) {
+                    logToTerminal('Пользователи: ' + JSON.stringify(jsonResponse, null, 2));
+                } else {
+                    logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                }
+            } catch (error) {
+                logToTerminal('Ошибка при получении пользователей: ' + error. Message);
+            }
+        }
+
+        async function startMission() {
+            let data;
+            if (document.getElementById('survey').checked) {
+                const boxsize = document.getElementById('boxsize').value;
+                const stripewidth = document.getElementById('stripewidth').value;
+                const altitude = document.getElementById('altitude_survey').value;
+                const velocity = document.getElementById('velocity_survey').value;
+                data = { boxsize: parseInt(boxsize), stripewidth: parseInt(stripewidth), altitude: parseInt(altitude), velocity: parseInt(velocity) };
+
+                try {
+                    const response = await fetch(`${baseUrl}/api/survey_navigator/start`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const jsonResponse = await response.json();
+                    if (response.ok) {
+                        logToTerminal('Дрон запущен: ' + JSON.stringify(jsonResponse, null, 2));
+                    } else {
+                        logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                    }
+                } catch (error) {
+                    logToTerminal('Ошибка при запуске дрона: ' + error.message);
+                }
+            } else {
+                const radius = document.getElementById('radius').value;
+                const altitude = document.getElementById('altitude_orbit').value;
+        const velocity = document.getElementById('velocity_orbit').value;
+                const iterations = document.getElementById('iterations').value;
+                const center = document.getElementById('center').value;
+                const snapshots = document.getElementById('snapshots').value;
+
+                data = { radius: parseInt(radius), altitude: parseInt(altitude), velocity: parseInt(velocity), iterations: parseInt(iterations), center: JSON.parse(center), snapshots: parseInt(snapshots) };
+
+                try {
+                    const response = await fetch(`${baseUrl}/api/orbit_navigator/start`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+                    const jsonResponse = await response.json();
+                    if (response.ok) {
+                        logToTerminal('Дрон запущен: ' + JSON.stringify(jsonResponse, null, 2));
+                    } else {
+                        logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                    }
+                } catch (error) {
+                    logToTerminal('Ошибка при запуске дрона: ' + error. Message);
+                }
+            }
+        }
+
+        async function stopMission() {
+            if (document.getElementById('survey').checked) {
+                try {
+                    const response = await fetch(`${baseUrl}/api/survey_navigator/land`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        logToTerminal('Дрон приземлен');
+                    } else {
+                        const jsonResponse = await response.json();
+                        logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                    }
+                } catch (error) {
+                    logToTerminal('Ошибка при приземлении дрона: ' + error. Message);
+                }
+            } else {
+                try {
+                    const response = await fetch(`${baseUrl}/api/orbit_navigator/land`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        logToTerminal('Дрон приземлен');
+                    } else {
+                        const jsonResponse = await response.json();
+                        logToTerminal('Ошибка: ' + JSON.stringify(jsonResponse, null, 2));
+                    }
+                } catch (error) {
+                    logToTerminal('Ошибка при приземлении дрона: ' + error. Message);
+                }
+            }
+        }
+
+        function toggleMissionInputs() {
+            const surveyInputs = document.getElementById('surveyInputs');
+            const orbitInputs = document.getElementById('orbitInputs');
+
+            if (document.getElementById('survey').checked) {
+                surveyInputs.style.display = 'block';
+                orbitInputs.style.display = 'none';
+            } else {
+                surveyInputs.style.display = 'none';
+                orbitInputs.style.display = 'block';
+            }
+
+            document.getElementById('missionInputs').style.display = 'block'; // Показываем контейнер с параметрами
+        }
+
+        async function updateSystemMonitor() {
+            try {
+                const response = await fetch(`${baseUrl}/api/system_info`, { // Исправлено применение шаблонных строк
+                    method: 'GET'
+                });
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
+                const data = await response.json();
+                document.getElementById('cpu-usage').textContent = data.cpu_percent + '%';
+                document.getElementById('memory-usage').textContent = data.memory_percent + '%';
+                document.getElementById('disk-usage').textContent = data.disk_usage + '%';
+            } catch (error) {
+                logToTerminal('Нет соединения с сервером: ' + error. Message); // Добавлено сообщение об ошибке
+            }
+        }
+
+        function toggleSystemMonitor() {
+            isMonitorEnabled = !isMonitorEnabled;
+            const monitorBtn = document.getElementById('monitor-btn');
+            if (isMonitorEnabled) {
+                monitorBtn.textContent = 'Выкл мониторинг';
+                updateSystemMonitor();
+                monitorIntervalId = setInterval(updateSystemMonitor, 5000); // Сохраняем идентификатор интервала
+            } else {
+                monitorBtn.textContent = 'Вкл мониторинг';
+                clearInterval(monitorIntervalId); // Очищаем интервал по идентификатору
+            }
+        }
+
+        // Начинаем мониторинг при загрузке страницы
+        toggleSystemMonitor();
+    </script>
+</body>
+</html>
